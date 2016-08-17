@@ -43,9 +43,6 @@ Expects an array of Hashes with the following keys:
 * `tag`       (optional)
   - a tag to attach to content from the file
   - Default: basename of filename with periods replaced with dashes (e.g. `/d/f.log` -> `f-log`)
-* `statefile` (optional)
-  - an absolute path to the rsyslog statefile
-  - Default: the filename path with `.rsyslog_state` appended (e.g. `/d/f.log` -> `/d/f.log.rsyslog_state`)
 * `severity`  (optional)
   - the rsyslog severity for the contents of the file
   - Default: the severity will be omitted from the config if it isn't set. Rsyslog will default it to `Info`
@@ -56,7 +53,7 @@ Example:
   node.set.loggly.log_files = [
     { 'filename' => '/string/key.file.ext' },
     { filename: '/just/a/file.log' },
-    { filename: '/every/thing.txt', tag: 'all the options', statefile: '/tmp/state', severity: 'Warning' }
+    { filename: '/every/thing.txt', tag: 'all the options', severity: 'Warning' }
   ]
 ```
 

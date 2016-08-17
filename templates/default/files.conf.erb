@@ -6,7 +6,6 @@ module(load="imfile" PollingInterval="<%= node.loggly.rsyslog.input_file_poll_in
 input(type="imfile"
       File="<%= logfile['filename'] %>"
       Tag="<%= logfile['tag'] %>"
-      Statefile="<%= logfile['statefile'] %>"
   <%- if logfile.key?('severity') -%>
       Severity="<%= logfile['severity'] %>"
   <%- end %>

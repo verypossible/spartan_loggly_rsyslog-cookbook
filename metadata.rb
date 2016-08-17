@@ -6,9 +6,9 @@ source_url       'https://github.com/spartansystems/spartan_loggly_rsyslog-cookb
 issues_url       'https://github.com/spartansystems/spartan_loggly_rsyslog-cookbook/issues'
 description      'Configures rsyslog to send logs to Loggly'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '3.0.0'
+version          '4.0.0'
 
 supports 'ubuntu', '>= 14.04'
 
-depends 'apt', '~> 3.0.0'
+depends 'apt'
 depends 'rsyslog', '~> 4.0.0'

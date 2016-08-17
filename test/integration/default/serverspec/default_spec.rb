@@ -34,7 +34,6 @@ describe file('/etc/rsyslog.d/99-files.conf') do
     input(type="imfile"
           File="/tmp/test.log"
           Tag="test-log"
-          Statefile="/tmp/test.log.rsyslog_state"
       )
   EOS
 

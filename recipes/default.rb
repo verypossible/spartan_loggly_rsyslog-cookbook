@@ -65,7 +65,6 @@ log_files = node.loggly.log_files.reject { |f| !f.is_a?(Hash) || !f.key?('filena
 files = log_files.map do |f|
   f = f.to_h
   f['tag'] = File.basename(f['filename']).tr('.', '-') unless f.key?('tag')
-  f['statefile'] = "#{f['filename']}.rsyslog_state" unless f.key?('statefile')
   f
 end
 

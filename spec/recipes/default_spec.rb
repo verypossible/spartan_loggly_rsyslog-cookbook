@@ -162,7 +162,7 @@ describe 'spartan_loggly_rsyslog::default' do
       [
         { 'filename' => '/string/key.file.ext' },
         { filename: '/just/a/file.log' },
-        { filename: '/every/thing.txt', tag: 'all the options', statefile: '/tmp/state', severity: 'Warning' }
+        { filename: '/every/thing.txt', tag: 'all the options', severity: 'Warning' }
       ]
     end
     let(:chef_run) do
@@ -183,17 +183,14 @@ describe 'spartan_loggly_rsyslog::default' do
         input(type="imfile"
               File="/string/key.file.ext"
               Tag="key-file-ext"
-              Statefile="/string/key.file.ext.rsyslog_state"
           )
         input(type="imfile"
               File="/just/a/file.log"
               Tag="file-log"
-              Statefile="/just/a/file.log.rsyslog_state"
           )
         input(type="imfile"
               File="/every/thing.txt"
               Tag="all the options"
-              Statefile="/tmp/state"
               Severity="Warning"
           )
       EOS
