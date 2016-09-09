@@ -50,13 +50,33 @@ end
 tags = node.loggly.tags || []
 tags = tags.map { |tag| "tag=\\\"#{tag}\\\"" }.join(' ')
 
+# Determine whether to use 6.x and lower syntax in configuration
+use_version6_syntax = false
+
+ruby_block 'installed_rsyslog_version_check' do
+  block do
+    version_cmd = Mixlib::ShellOut.new('rpm -q rsyslog')
+    version_cmd.run_command
+    response = version_cmd.stdout.chomp
+    # will return something like rsyslog-5.8.10-10.el6_6.x86_64
+    major_version = response.match(/^rsyslog-(\d+)/)[1].to_i
+    use_version6_syntax = (major_version <= 6)
+  end
+  only_if { node.platform_family == 'rhel' }
+end
+
 # Write out configuration
 template node.loggly.rsyslog.conf do
   source 'rsyslog-loggly.conf.erb'
   owner 'root'
   group 'root'
   mode 0644
-  variables(crt_file: crt_file, tags: tags, token: node.loggly.token)
+  variables lazy {
+    { crt_file: crt_file,
+      tags: tags,
+      token: node.loggly.token,
+      use_version6_syntax: use_version6_syntax }
+  }
   notifies :restart, 'service[rsyslog]', :immediate
 end
 
