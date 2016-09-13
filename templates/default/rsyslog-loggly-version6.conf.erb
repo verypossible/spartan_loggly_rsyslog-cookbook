@@ -15,7 +15,5 @@ $ActionSendStreamDriverMode 1
 $ActionSendStreamDriverAuthMode x509/name
 $ActionSendStreamDriverPermittedPeer *.loggly.com
 
-template(name="LogglyFormat" type="string"
-string="<%%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [<%= @token %>@41058 <%= @tags %>] %msg%\n")
-# Send messages to Loggly over TCP using the template.
-action(type="omfwd" protocol="tcp" target="<%= node.loggly.rsyslog.host %>" port="<%= node.loggly.rsyslog.port %>" template="LogglyFormat")
+$template LogglyFormat,"<%%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [<%= @token %>@41058 <%= @tags %>] %msg%\n"
+*.* @@<%= node.loggly.rsyslog.host %>:<%= node.loggly.rsyslog.port %>;LogglyFormat
