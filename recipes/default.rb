@@ -29,7 +29,7 @@ end
 
 directory node.loggly.tls.cert_path do
   owner 'root'
-  group 'syslog'
+  group node.rsyslog.priv_group || 'root'
   mode 0750
   action :create
   recursive true
@@ -43,21 +43,43 @@ remote_file 'download loggly.com cert' do
   path crt_file
   source node.loggly.tls.cert_url
   checksum node.loggly.tls.cert_checksum
-  notifies :restart, 'service[rsyslog]', :immediate
+  notifies :restart, 'service[rsyslog]', :delayed
 end
 
 # Set up tags
 tags = node.loggly.tags || []
 tags = tags.map { |tag| "tag=\\\"#{tag}\\\"" }.join(' ')
 
+rsyslog_conf_source = 'rsyslog-loggly.conf.erb'
+files_conf_source = 'files.conf.erb'
+
+# Determine whether to use 6.x and lower syntax in configuration
+ruby_block 'installed_rsyslog_version_check' do
+  block do
+    version_cmd = Mixlib::ShellOut.new('rpm -q rsyslog')
+    version_cmd.run_command
+    response = version_cmd.stdout.chomp
+    # will return something like rsyslog-5.8.10-10.el6_6.x86_64
+
+    major_version = response.match(/^rsyslog-(\d+)/)[1].to_i
+    if major_version <= 6
+      rsyslog_conf_resource = run_context.resource_collection.find(template: node.loggly.rsyslog.conf)
+      rsyslog_conf_resource.source('rsyslog-loggly-version6.conf.erb')
+      files_conf_resource = run_context.resource_collection.find(template: node.loggly.rsyslog.files_conf)
+      files_conf_resource.source('files-version6.conf.erb')
+    end
+  end
+  only_if { node.platform_family == 'rhel' }
+end
+
 # Write out configuration
 template node.loggly.rsyslog.conf do
-  source 'rsyslog-loggly.conf.erb'
+  source rsyslog_conf_source
   owner 'root'
   group 'root'
   mode 0644
   variables(crt_file: crt_file, tags: tags, token: node.loggly.token)
-  notifies :restart, 'service[rsyslog]', :immediate
+  notifies :restart, 'service[rsyslog]', :delayed
 end
 
 # Write out configs for files
@@ -70,11 +92,11 @@ files = log_files.map do |f|
 end
 
 template node.loggly.rsyslog.files_conf do
-  source 'files.conf.erb'
+  source files_conf_source
   owner 'root'
   group 'root'
   mode 0644
   variables(log_files: files)
-  notifies :restart, 'service[rsyslog]', :immediate
+  notifies :restart, 'service[rsyslog]', :delayed
   not_if { log_files.empty? }
 end

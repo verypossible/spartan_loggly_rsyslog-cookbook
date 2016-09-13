@@ -24,9 +24,12 @@ describe 'spartan_loggly_rsyslog::default' do
   let(:crt_file) { 'logs-01.loggly.com_sha12.crt' }
   let(:crt_file_path) { "#{crt_path}/#{crt_file}" }
   let(:crt_remote_resource) { 'download loggly.com cert' }
+  let(:rsyslog_group) { 'syslog' }
+
   let(:chef_run) do
     ChefSpec::ServerRunner.new(file_cache_path: file_cache_path) do |node|
       node.set.loggly.token = token
+      node.normal.rsyslog.priv_group = rsyslog_group
     end.converge(described_recipe)
   end
 
@@ -52,7 +55,7 @@ describe 'spartan_loggly_rsyslog::default' do
   it 'creates a directory for the certificate' do
     expect(chef_run).to create_directory(crt_path).with(
       owner: 'root',
-      group: 'syslog',
+      group: rsyslog_group,
       mode: 0750
     )
   end
@@ -199,6 +202,34 @@ describe 'spartan_loggly_rsyslog::default' do
       EOS
 
       expect(chef_run).to render_file(files_conf).with_content(expected_files_conf)
+    end
+  end
+
+  context 'on a ubuntu platform' do
+    let(:chef_run) do
+      ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
+                                 platform: 'ubuntu',
+                                 version: '14.04') do |node|
+        node.set.loggly.token = token
+      end.converge(described_recipe)
+    end
+
+    it 'does not run a ruby block to check the rsyslog package version' do
+      expect(chef_run).not_to run_ruby_block('installed_rsyslog_version_check')
+    end
+  end
+
+  context 'on a redhat platform' do
+    let(:chef_run) do
+      ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
+                                 platform: 'centos',
+                                 version: '6.7') do |node|
+        node.set.loggly.token = token
+      end.converge(described_recipe)
+    end
+
+    it 'runs a ruby block to check the rsyslog package version' do
+      expect(chef_run).to run_ruby_block('installed_rsyslog_version_check')
     end
   end
 end
