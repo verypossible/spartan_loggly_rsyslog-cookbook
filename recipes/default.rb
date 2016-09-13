@@ -43,7 +43,7 @@ remote_file 'download loggly.com cert' do
   path crt_file
   source node.loggly.tls.cert_url
   checksum node.loggly.tls.cert_checksum
-  notifies :restart, 'service[rsyslog]', :immediate
+  notifies :restart, 'service[rsyslog]', :delayed
 end
 
 # Set up tags
@@ -79,6 +79,7 @@ template node.loggly.rsyslog.conf do
   group 'root'
   mode 0644
   variables(crt_file: crt_file, tags: tags, token: node.loggly.token)
+  notifies :restart, 'service[rsyslog]', :delayed
 end
 
 # Write out configs for files
@@ -96,6 +97,6 @@ template node.loggly.rsyslog.files_conf do
   group 'root'
   mode 0644
   variables(log_files: files)
-  notifies :restart, 'service[rsyslog]', :immediate
+  notifies :restart, 'service[rsyslog]', :delayed
   not_if { log_files.empty? }
 end
