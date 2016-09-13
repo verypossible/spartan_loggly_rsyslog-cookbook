@@ -97,8 +97,7 @@ describe 'spartan_loggly_rsyslog::default' do
       variables: {
         crt_file: crt_file_path,
         tags: '',
-        token: token,
-        use_version6_syntax: false
+        token: token
       }
     )
 
@@ -127,8 +126,7 @@ describe 'spartan_loggly_rsyslog::default' do
         variables: {
           crt_file: crt_file_path,
           tags: generated_tags,
-          token: token,
-          use_version6_syntax: false
+          token: token
         }
       )
 
