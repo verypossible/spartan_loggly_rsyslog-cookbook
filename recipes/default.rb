@@ -20,7 +20,7 @@
 Chef::Recipe.public_send(:include, LogglyHelpers)
 Chef::Resource.public_send(:include, LogglyHelpers)
 
-fail 'You must define the Loggly token.' if node.loggly.token.empty?
+fail 'You must define the Loggly token.' if node['loggly']['token'].empty?
 
 # Install rsyslog
 include_recipe 'rsyslog::default'
@@ -30,24 +30,24 @@ package 'rsyslog-gnutls' do
   action :install
 end
 
-assign_default_rsyslog_version if node.loggly.rsyslog_major_version.nil?
+assign_default_rsyslog_version if node['loggly']['rsyslog_major_version'].nil?
 
-directory node.loggly.tls.cert_path do
+directory node['loggly']['tls']['cert_path'] do
   owner 'root'
-  group node.loggly.rsyslog_group
+  group node['loggly']['rsyslog_group']
   mode 0750
   action :create
   recursive true
 end
 
-crt_file = "#{node.loggly.tls.cert_path}/#{node.loggly.tls.cert_file}"
+crt_file = "#{node['loggly']['tls']['cert_path']}/#{node['loggly']['tls']['cert_file']}"
 remote_file 'download loggly.com cert' do
   owner 'root'
   group 'root'
   mode 0644
   path crt_file
-  source node.loggly.tls.cert_url
-  checksum node.loggly.tls.cert_checksum
+  source node['loggly']['tls']['cert_url']
+  checksum node['loggly']['tls']['cert_checksum']
   notifies :restart, 'service[rsyslog]', :delayed
 end
 
@@ -57,25 +57,25 @@ begin
   true
 rescue Chef::Exceptions::ResourceNotFound
   execute 'validate_config' do
-    command "rsyslogd -N 1 -f #{node.rsyslog.config_prefix}/rsyslog.conf"
+    command "rsyslogd -N 1 -f #{node['rsyslog']['config_prefix']}/rsyslog.conf"
     action  :nothing
   end
 end
 # end
 
 # Write out configuration
-template node.loggly.rsyslog.conf do
+template node['loggly']['rsyslog']['conf'] do
   helpers(LogglyHelpers)
   source 'rsyslog-loggly.conf.erb'
   owner 'root'
   group 'root'
   mode 0644
-  variables(crt_file: crt_file, tags: tags, token: node.loggly.token)
+  variables(crt_file: crt_file, tags: tags, token: node['loggly']['token'])
   notifies :run, 'execute[validate_config]', :delayed
   notifies :restart, 'service[rsyslog]', :delayed
 end
 
-template node.loggly.rsyslog.im_file_conf do
+template node['loggly']['rsyslog']['im_file_conf'] do
   helpers(LogglyHelpers)
   source 'input-module-file.conf.erb'
   owner 'root'
@@ -85,23 +85,23 @@ template node.loggly.rsyslog.im_file_conf do
 end
 
 # Write out configs for files
-files = configure_files(node.loggly.log_files)
+files = configure_files(node['loggly']['log_files'])
 
-template node.loggly.rsyslog.files_conf do
+template node['loggly']['rsyslog']['files_conf'] do
   helpers(LogglyHelpers)
   source 'files.conf.erb'
   owner 'root'
   group 'root'
   mode 0644
   variables(log_files: files)
-  notifies :create, "template[#{node.loggly.rsyslog.im_file_conf}]", :immediate
+  notifies :create, "template[#{node['loggly']['rsyslog']['im_file_conf']}]", :immediate
   notifies :run, 'execute[validate_config]', :delayed
   notifies :restart, 'service[rsyslog]', :delayed
   not_if { files.empty? }
 end
 
 # Write out configs for apps
-node.loggly.apps.each do |app_name, app_log_files|
+node['loggly']['apps'].each do |app_name, app_log_files|
   files = configure_files(app_log_files)
   file_tags = files.map { |file| file['tag'] }.uniq
 
@@ -115,7 +115,7 @@ node.loggly.apps.each do |app_name, app_log_files|
               format: loggly_format(app_name),
               log_files: files,
               file_tags: file_tags)
-    notifies :create, "template[#{node.loggly.rsyslog.im_file_conf}]", :immediate
+    notifies :create, "template[#{node['loggly']['rsyslog']['im_file_conf']}]", :immediate
     notifies :run, 'execute[validate_config]', :delayed
     notifies :restart, 'service[rsyslog]', :delayed
     not_if { files.empty? }

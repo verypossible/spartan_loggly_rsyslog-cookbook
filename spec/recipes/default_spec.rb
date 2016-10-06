@@ -29,24 +29,24 @@ describe 'spartan_loggly_rsyslog::default' do
 
   let(:chef_run) do
     ChefSpec::ServerRunner.new(file_cache_path: file_cache_path) do |node|
-      node.set.loggly.token = token
-      node.normal.rsyslog.priv_group = rsyslog_group
+      node.set['loggly']['token'] = token
+      node.set['rsyslog']['priv_group'] = rsyslog_group
     end.converge(described_recipe)
   end
 
   it 'uses 64k as the max_message_size' do
-    expect(chef_run.node.rsyslog.max_message_size).to eq '64k'
+    expect(chef_run.node['rsyslog']['max_message_size']).to eq '64k'
     expect(chef_run).to render_file('/etc/rsyslog.conf').with_content(/^\$MaxMessageSize 64k$/)
   end
 
   let(:port) { 6514 }
   it 'uses 6514 as the port' do
-    expect(chef_run.node.loggly.rsyslog.port).to eq port
+    expect(chef_run.node['loggly']['rsyslog']['port']).to eq port
   end
 
   let(:host) { 'logs-01.loggly.com' }
   it 'uses logs-01.loggly.com as the host' do
-    expect(chef_run.node.loggly.rsyslog.host).to eq host
+    expect(chef_run.node['loggly']['rsyslog']['host']).to eq host
   end
 
   it 'installs the rsyslog-gnutls package' do
@@ -115,8 +115,8 @@ describe 'spartan_loggly_rsyslog::default' do
     let(:generated_tags) { tags.map { |tag| "tag=\\\"#{tag}\\\"" }.join(' ') }
     let(:chef_run) do
       ChefSpec::ServerRunner.new(file_cache_path: file_cache_path) do |node|
-        node.set.loggly.token = token
-        node.set.loggly.tags = tags
+        node.set['loggly']['token'] = token
+        node.set['loggly']['tags'] = tags
       end.converge(described_recipe)
     end
 
@@ -155,8 +155,8 @@ describe 'spartan_loggly_rsyslog::default' do
     end
     let(:chef_run) do
       ChefSpec::ServerRunner.new(file_cache_path: file_cache_path) do |node|
-        node.set.loggly.token = token
-        node.set.loggly.log_files = files
+        node.set['loggly']['token'] = token
+        node.set['loggly']['log_files'] = files
       end.converge(described_recipe)
     end
 
@@ -176,8 +176,8 @@ describe 'spartan_loggly_rsyslog::default' do
 
     let(:chef_run) do
       ChefSpec::ServerRunner.new(file_cache_path: file_cache_path) do |node|
-        node.set.loggly.token = token
-        node.set.loggly.log_files = files
+        node.set['loggly']['token'] = token
+        node.set['loggly']['log_files'] = files
       end.converge(described_recipe)
     end
 
@@ -226,7 +226,7 @@ describe 'spartan_loggly_rsyslog::default' do
       chef_run = ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
                                             platform: 'ubuntu',
                                             version: '14.04') do |node|
-        node.set.loggly.token = token
+        node.set['loggly']['token'] = token
       end.converge(described_recipe)
 
       expect(chef_run).to install_package('rsyslog-gnutls')
@@ -238,7 +238,7 @@ describe 'spartan_loggly_rsyslog::default' do
       chef_run = ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
                                             platform: 'centos',
                                             version: '6.6') do |node|
-        node.set.loggly.token = token
+        node.set['loggly']['token'] = token
       end.converge(described_recipe)
 
       expect(chef_run).to install_package('rsyslog-gnutls')
@@ -249,35 +249,35 @@ describe 'spartan_loggly_rsyslog::default' do
     chef_run = ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
                                           platform: 'centos',
                                           version: '6.6') do |node|
-      node.set.loggly.token = token
+      node.set['loggly']['token'] = token
     end.converge(described_recipe)
-    expect(chef_run.node.loggly.rsyslog_major_version).to eq(5)
+    expect(chef_run.node['loggly']['rsyslog_major_version']).to eq(5)
   end
 
   it 'defaults to rsyslog version 7.x on CentOS 7.x' do
     chef_run = ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
                                           platform: 'centos',
                                           version: '7.0') do |node|
-      node.set.loggly.token = token
+      node.set['loggly']['token'] = token
     end.converge(described_recipe)
-    expect(chef_run.node.loggly.rsyslog_major_version).to eq(7)
+    expect(chef_run.node['loggly']['rsyslog_major_version']).to eq(7)
   end
 
   it 'defaults to rsyslog version 7.x on Ubuntu 14.04' do
     chef_run = ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
                                           platform: 'ubuntu',
                                           version: '14.04') do |node|
-      node.set.loggly.token = token
+      node.set['loggly']['token'] = token
     end.converge(described_recipe)
-    expect(chef_run.node.loggly.rsyslog_major_version).to eq(7)
+    expect(chef_run.node['loggly']['rsyslog_major_version']).to eq(7)
   end
 
   it 'defaults to rsyslog version 8.x on Ubuntu 16.04' do
     chef_run = ChefSpec::ServerRunner.new(file_cache_path: file_cache_path,
                                           platform: 'ubuntu',
                                           version: '16.04') do |node|
-      node.set.loggly.token = token
+      node.set['loggly']['token'] = token
     end.converge(described_recipe)
-    expect(chef_run.node.loggly.rsyslog_major_version).to eq(8)
+    expect(chef_run.node['loggly']['rsyslog_major_version']).to eq(8)
   end
 end

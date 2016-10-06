@@ -22,21 +22,21 @@ module LogglyHelpers
   end
 
   def tags
-    (node.loggly.tags || []).map { |tag| "tag=\\\"#{tag}\\\"" }.join(' ')
+    (node['loggly']['tags'] || []).map { |tag| "tag=\\\"#{tag}\\\"" }.join(' ')
   end
 
   def app_conf(app_name)
-    "#{node.loggly.rsyslog.conf_dir}/21-#{app_name}.conf"
+    "#{node['loggly']['rsyslog']['conf_dir']}/21-#{app_name}.conf"
   end
 
   def assign_default_rsyslog_version
-    node.default.loggly.rsyslog_major_version = version_for_platform || 7
+    node.default['loggly']['rsyslog_major_version'] = version_for_platform || 7
   end
 
   private def version_for_platform
-    versions = versions_by_platform_name[node.platform]
+    versions = versions_by_platform_name[node['platform']]
     highest_match = versions.keys.detect do |key|
-      node.platform_version.to_f >= key
+      node['platform_version'].to_f >= key
     end
     highest_match && versions[highest_match]
   end
@@ -44,14 +44,14 @@ module LogglyHelpers
   private def versions_by_platform_name
     # The Hash.new with default value ensures we'll be able to chain
     # Enumerable methods when there's no platform match.
-    Hash.new({}).merge(node.loggly.rsyslog_versions_by_platform)
+    Hash.new({}).merge(node['loggly']['rsyslog_versions_by_platform'])
   end
 
   def supports_statefile?
-    node.loggly.rsyslog_major_version < 8
+    node['loggly']['rsyslog_major_version'] < 8
   end
 
   def supports_function_syntax?
-    node.loggly.rsyslog_major_version >= 7
+    node['loggly']['rsyslog_major_version'] >= 7
   end
 end

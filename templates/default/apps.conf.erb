@@ -2,9 +2,9 @@
 
 # Add a tag for <%= @app_name %> app events
 <%- if supports_function_syntax? -%>
-template(name="<%= @format %>" type="string" string="%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [<%= node.loggly.token %>@41058 tag=\"<%= @app_name %>\"] %msg%\n")
+template(name="<%= @format %>" type="string" string="%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [<%= node['loggly']['token'] %>@41058 tag=\"<%= @app_name %>\"] %msg%\n")
 <%- else -%>
-$template <%= @format %>,"<%%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [<%= node.loggly.token %>@41058 tag=\"<%= @app_name %>\"] %msg%\n"
+$template <%= @format %>,"<%%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% %procid% %msgid% [<%= node['loggly']['token'] %>@41058 tag=\"<%= @app_name %>\"] %msg%\n"
 <%- end -%>
 
 <%- if supports_function_syntax? -%>
@@ -37,9 +37,9 @@ $InputRunFileMonitor
 # Send to Loggly then discard
 <%- @file_tags.each do |file_tag| -%>
 <%- if supports_function_syntax? -%>
-if $programname == '<%= file_tag %>' then action(type="omfwd" protocol="tcp" target="<%= node.loggly.rsyslog.host %>" port="<%= node.loggly.rsyslog.port %>" template="<%= @format %>")
+if $programname == '<%= file_tag %>' then action(type="omfwd" protocol="tcp" target="<%= node['loggly']['rsyslog']['host'] %>" port="<%= node['loggly']['rsyslog']['port'] %>" template="<%= @format %>")
 <%- else -%>
-if $programname == '<%= file_tag %>' then @@<%= node.loggly.rsyslog.host %>:<%= node.loggly.rsyslog.port %>;<%= @format %>
+if $programname == '<%= file_tag %>' then @@<%= node['loggly']['rsyslog']['host'] %>:<%= node['loggly']['rsyslog']['port'] %>;<%= @format %>
 <%- end -%>
 if $programname == '<%= file_tag %>' then ~
 <%- end -%>
