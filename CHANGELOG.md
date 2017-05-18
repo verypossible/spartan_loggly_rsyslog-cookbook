@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.2] - 2017-05-18
+### Fixed
+- Updated version of rsyslog cookbook to more recent version in metadata.rb.
+
 ## [3.1.1] - 2016-10-06
 ### Fixed
 - Deprecation warnings from using method attribute accessors.
