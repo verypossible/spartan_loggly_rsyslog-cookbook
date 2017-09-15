@@ -25,11 +25,6 @@ fail 'You must define the Loggly token.' if node['loggly']['token'].empty?
 # Install rsyslog
 include_recipe 'rsyslog::default'
 
-# TLS Configuration
-package 'rsyslog-gnutls' do
-  action :install
-end
-
 assign_default_rsyslog_version if node['loggly']['rsyslog_major_version'].nil?
 
 directory node['loggly']['tls']['cert_path'] do
